@@ -73,8 +73,8 @@ int readline()
   if (!onLine)
   {
     if (_lastPosition < (_NumofSensor - 1) * 1000 / 2)
-    {
-      return 0;
+   {
+     return 0;
     }
     else 
     {

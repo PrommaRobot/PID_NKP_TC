@@ -38,6 +38,57 @@ void pid(float Kp, float Kd, int sp){
   
   }
 
+  void pid_BB(float Kp, float Kd, int sp){
+    while(1){
+      if(analog(0)<500&&analog(5)<500)  break;
+  int Ki=0;
+  int speed_max = sp;
+  present_position = readline() /( (numSensor - 1) * 10 );
+  setpoint = 50;
+  errors = setpoint - present_position;
+  integral = integral + errors ;
+  derivative = (errors - previous_error) ;
+  output = Kp * errors + Ki * integral + Kd * derivative;
+  previous_error = errors;
+  if(output > 100 )output = 100;
+  else if(output < -100)output = -100;
+  motor(1, speed_max - output);
+  motor(2, speed_max + output);
+  delay(1);
+    }
+  }
+  
+  void pid_BB2(float Kp, float Kd, int sp,int a){
+    while(1){
+      if(analog(0)>500&&analog(2)>500&&analog(3)>500&&analog(4)>500){
+        while(analog(0)>500&&analog(2)>500&&analog(3)>500&&analog(4)>500){
+          fd(sp);
+        }
+        //ao();
+        if(a==1)  square3(1);
+        if(a==0)  {
+          fd(sp);  delay(100);
+        }
+        break;
+      }
+      
+  int Ki=0;
+  int speed_max = sp;
+  present_position = readline() /( (numSensor - 1) * 10 );
+  setpoint = 50;
+  errors = setpoint - present_position;
+  integral = integral + errors ;
+  derivative = (errors - previous_error) ;
+  output = Kp * errors + Ki * integral + Kd * derivative;
+  previous_error = errors;
+  if(output > 100 )output = 100;
+  else if(output < -100)output = -100;
+  motor(1, speed_max - output);
+  motor(2, speed_max + output);
+  delay(1);
+    }
+  }
+
 void pid_t(float Kp,float Kd, int sp,int t){
   long a = millis();
   while(millis() < t+a){
@@ -51,15 +102,50 @@ void square(int num){
     if(num==0)  break;
     else{
       if( analog(0)<500&&analog(1)<500 ){
-        fd(20); delay(100);
+        fd(30); delay(100);
         ao(); num -= 1; x=0;
         while(analog(4)>500)  sl(30);
         
       }
       else if( analog(4)<500&&analog(5)<500 ){
-         fd(20); delay(100);
+         fd(30); delay(100);
         ao(); num -= 1; x=0;
         while(analog(1)>500)  sr(30);
+
+      }
+      else if(analog(1)>500&&analog(4)<500){
+        motor(1,40);
+        motor(2,10);
+      }
+      else if(analog(1)<500&&analog(4)>500){
+        motor(1,10);
+        motor(2,40);
+      }
+      else{
+        motor(1,20+x);
+        motor(2,20+x);
+      }
+      x+=3;
+      if(x>20) x=20;
+    }
+  }
+}
+
+void square3(int num){
+  int x = 0;
+  while(1){
+    if(num==0)  break;
+    else{
+      if( analog(0)<500&&analog(1)<500 ){
+        fd(20); delay(100);
+        ao(); num -= 1; x=0;
+        while(analog(3)>500)  sl(30);
+        
+      }
+      else if( analog(4)<500&&analog(5)<500 ){
+         fd(20); delay(100);
+        ao(); num -= 1; x=0;
+        while(analog(2)>500)  sr(30);
 
       }
       else if(analog(1)>500&&analog(4)<500){
@@ -124,6 +210,19 @@ void setup() {
   square(6);
   square2(1);
   square(1);
+  pid_t(0.65,0,40,2000);
+  pid_t(0.65,1,50,1000);
+  pid_t(0.65,1.5,75,2500);
+  pid_t(0.65,1,60,3500);
+
+  pid_t(0.75,5,60,7000);
+  pid_t(0.75,5,40,4000);  
+
+  pid_BB2(0.75,5,40,1);
+  pid_BB2(0.75,5,40,1);
+  pid_BB2(0.75,5,40,0);
+  pid_t(1,0,40,3500);
+  pid_BB(0.75,5,40);
   
   ao();
   
